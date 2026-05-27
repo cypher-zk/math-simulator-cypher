@@ -154,7 +154,8 @@ export function settleAccuracy(
     if (s.error >= medianError) continue
     const relErr = medianError === 0 ? 0n : BigInt(Math.floor((s.error * Number(SCALE)) / medianError))
     const denom = SCALE + relErr
-    let w = 1n
+    // Keep weight in fixed-point SCALE units to avoid collapsing to zero.
+    let w = SCALE
     for (let e = 0; e < decayExp; e++) w = (w * SCALE) / denom
     totalWeight += w
     wws.push({ idx: s.idx, w })
@@ -177,7 +178,7 @@ export function settleAccuracy(
   const traderResults: AccuracyTraderResult[] = traders.map((t, i) => {
     const error = Math.abs(t.prediction - resolvedValue)
     const w = weights.get(i) ?? 0n
-    const won = payouts[i] > 0
+    const won = error < medianError
     const payout = payouts[i]
     return {
       ...t, error,
