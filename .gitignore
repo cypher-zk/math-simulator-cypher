@@ -2,3 +2,5 @@
 node_modules
 package-lock.json
 bun.lock
+.vercel
+.env*
